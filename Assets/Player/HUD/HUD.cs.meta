@@ -2,7 +2,10 @@ fileFormatVersion: 2
 guid: 18e5c7ee4b744438f99656d2c2b36696
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - resourceSkin: {instanceID: 0}
+  - ordersSkin: {instanceID: 0}
+  - selectBoxSkin: {fileID: 11400000, guid: 953aabcad86bd4f6584a0be42f5dacf5, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
