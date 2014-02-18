@@ -78,9 +78,16 @@ public class MapObject : MonoBehaviour {
 	public virtual void MouseClick(GameObject hitObject, Vector3 hitPoint, Player controller) {
 		//only handle input if currently selected
 		if(currentlySelected && hitObject && hitObject.name != "Ground") {
-			MapObject worldObject = hitObject.transform.root.GetComponent<MapObject>();
+			MapObject worldObject = hitObject.transform.parent.GetComponent<MapObject>();
 			//clicked on another selectable object
 			if(worldObject) ChangeSelection(worldObject, controller);
+		}
+	}
+
+	public virtual void SetHoverState(GameObject hoverObject) {
+		//only handle input if owned by a human player and currently selected
+		if(player && player.human && currentlySelected) {
+			if(hoverObject.name != "Ground") player.hud.SetCursorState(CursorState.Select);
 		}
 	}
 }

@@ -23,19 +23,28 @@ public class UserInput : MonoBehaviour {
 		float xpos = Input.mousePosition.x;
 		float ypos = Input.mousePosition.y;
 		Vector3 movement = new Vector3(0,0,0);
+		bool mouseScroll = false;
 
-		// horizontal camera movement
-		if(xpos >= 0 && xpos < ResourceManager.ScrollWidth) {
+		//horizontal camera movement
+		if(xpos <= 0 && xpos < ResourceManager.ScrollWidth) {
 			movement.x -= ResourceManager.ScrollSpeed;
+			player.hud.SetCursorState(CursorState.PanLeft);
+			mouseScroll = true;
 		} else if(xpos <= Screen.width && xpos > Screen.width - ResourceManager.ScrollWidth) {
 			movement.x += ResourceManager.ScrollSpeed;
+			player.hud.SetCursorState(CursorState.PanRight);
+			mouseScroll = true;
 		}
-
-		// vertical camera movement 
+		
+		//vertical camera movement
 		if(ypos >= 0 && ypos < ResourceManager.ScrollWidth) {
 			movement.z -= ResourceManager.ScrollSpeed;
-		} else if(ypos <= Screen.height && ypos > Screen.height - ResourceManager.ScrollWidth){
+			player.hud.SetCursorState(CursorState.PanDown);
+			mouseScroll = true;
+		} else if(ypos <= Screen.height && ypos > Screen.height - ResourceManager.ScrollWidth) {
 			movement.z += ResourceManager.ScrollSpeed;
+			player.hud.SetCursorState(CursorState.PanUp);
+			mouseScroll = true;
 		}
 
 		// make sure movement is in the direction the camera is pointing
@@ -64,11 +73,16 @@ public class UserInput : MonoBehaviour {
 		if(destination != origin) {
 			Camera.mainCamera.transform.position = Vector3.MoveTowards(origin, destination, Time.deltaTime * ResourceManager.ScrollSpeed);
 		}
+
+		if(!mouseScroll) {
+			player.hud.SetCursorState(CursorState.Select);
+		}
 	}
 
 	private void MouseActivity() {
 		if(Input.GetMouseButtonDown(0)) LeftMouseClick();
 		else if(Input.GetMouseButtonDown(1)) RightMouseClick();
+		MouseHover();
 	}
 	
 	private void LeftMouseClick() {
@@ -78,7 +92,7 @@ public class UserInput : MonoBehaviour {
 			if(hitObject && hitPoint != ResourceManager.InvalidPosition) {
 				if(player.SelectedObject) player.SelectedObject.MouseClick(hitObject, hitPoint, player);
 				else if(hitObject.name != "Ground") {
-					MapObject worldObject = hitObject.transform.root.GetComponent<MapObject>();
+					MapObject worldObject = hitObject.transform.parent.GetComponent<MapObject>();
 					if(worldObject) {
 						//we already know the player has no selected object
 						player.SelectedObject = worldObject;
@@ -109,4 +123,23 @@ public class UserInput : MonoBehaviour {
 		if(Physics.Raycast(ray, out hit)) return hit.point;
 		return ResourceManager.InvalidPosition;
 	}
+
+	private void MouseHover() {
+		if(player.hud.MouseInBounds()) {
+			GameObject hoverObject = FindHitObject();
+			if(hoverObject) {
+				if(player.SelectedObject) player.SelectedObject.SetHoverState(hoverObject);
+				else if(hoverObject.name != "Ground") {
+					Player owner = hoverObject.transform.root.GetComponent< Player >();
+					if(owner) {
+						Ship ship = hoverObject.transform.parent.GetComponent< Ship >();
+						//Building building = hoverObject.transform.parent.GetComponent< Building >();
+						if(owner.username == player.username && (ship /*|| building*/)) player.hud.SetCursorState(CursorState.Select);
+					}
+				}
+			}
+		}
+	}
+
+
 }
